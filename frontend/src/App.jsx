@@ -6,7 +6,7 @@ function App() {
 
   return (
     
-      <div className="text-">
+      <div className="text-red">
         sdasdasnpdfs
       </div>
      
