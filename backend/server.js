@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import {connectDB} from "./lib/db.js"
 
 import testTemplateRoutes from "./routes/testTemplate.route.js"
+import testReportRoutes from "./routes/testReport.route.js"
 
 
 dotenv.config();
@@ -17,6 +18,9 @@ app.use(express.json()) //allows to parse thr body of req
 
 
 app.use("/api/testTemplates",testTemplateRoutes)
+
+app.use("/api/testReports",testReportRoutes)
+
 
 
 
