@@ -136,7 +136,7 @@ function UpdateTemplate() {
       if (response.status === 200) {
         console.log("Template updated successfully:", response.data);
         alert("Template updated successfully!");
-        navigate("/testTemplates"); // Navigate to TestTemplates page
+        navigate("/alltemplates"); // Navigate to TestTemplates page
       } else {
         // Handle unexpected status codes
         console.error("Unexpected response status:", response.status);
