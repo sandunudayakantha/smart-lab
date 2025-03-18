@@ -14,6 +14,9 @@ const Home = () => {
     navigate("/alltemplates"); // Navigate to the `/templates` route
   };
 
+  const handleManageReportClick = () => {
+    navigate("/reports"); // Navigate to the `/templates` route
+  };
 
 
   return (
@@ -34,6 +37,13 @@ const Home = () => {
         className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
       >
         Template Management
+      </button>
+
+      <button
+        onClick={handleManageReportClick}
+        className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+      >
+        Report Management
       </button>
     </div>
   )
