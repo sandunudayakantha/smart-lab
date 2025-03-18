@@ -1,10 +1,13 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom"; // For navigation
+import { useNavigate } from "react-router-dom";
 
 
 function TestTemplates() {
   const [templates, setTemplates] = useState([]);
+
+  const navigate = useNavigate();
 
   // Fetch all templates from the backend
   useEffect(() => {
@@ -20,9 +23,32 @@ function TestTemplates() {
     fetchTemplates();
   }, []);
 
+  const handleCreateTemplateClick = () => {
+    navigate("/templates"); // Navigate to the `/templates` route
+  };
+
+
+
+  const handleUpdateTemplateClick = () => {
+    navigate("/templates"); // Navigate to the `/templates` route
+  };
+
+
   return (
     <div className="p-6 bg-gray-100">
+
+      
+
       <h1 className="text-2xl font-bold mb-4">Test Templates</h1>
+
+      <button
+        onClick={handleCreateTemplateClick}
+        className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mx-4 mb-5"
+      >
+        Create Template
+      </button>
+
+
       <div className="space-y-4">
         {templates.length > 0 ? (
           templates.map((template) => (
@@ -31,10 +57,27 @@ function TestTemplates() {
               <p className="text-gray-600">{template.description}</p>
               <Link
                 to={`/testTemplates/${template._id}`} // Link to template details
-                className="mt-2 inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                className="mt-2 inline-block px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 ml-5"
               >
-                View Details
+                Preview
               </Link>
+
+              <Link
+                to={`/update-template/${template._id}`} // Link to update template
+                className="mt-2 inline-block px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 ml-5"
+              >
+                <button onClick={handleUpdateTemplateClick}
+                >Update</button>
+                
+              </Link>
+
+              <Link
+                to={`/testTemplates/${template._id}`} // Link to template details
+                className="mt-2 inline-block px-4 py-2 bg-red-500 text-white rounded hover:bg-blue-600 ml-5"
+              >
+                Delete
+              </Link>
+
             </div>
           ))
         ) : (

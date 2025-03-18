@@ -3,8 +3,9 @@
 import React from "react"
 import { Route, Routes } from "react-router-dom"
 import Home from "./pages/Home"
-import CreateTemplate from "./pages/createTemplate"
-import TestTemplates from "./pages/TestTemplates"
+import CreateTemplate from "./pages/Templates/CreateTemplate"
+import TestTemplates from "./pages/Templates/TestTemplates"
+import UpdateTemplate from "./pages/Templates/UpdateTemplate"
 
 function App() {
 
@@ -18,6 +19,7 @@ function App() {
         <Route path="/templates" element={<CreateTemplate/>} />
 
         <Route path="/alltemplates" element={<TestTemplates/>} />
+        <Route path="/update-template/:id" element={<UpdateTemplate />} />
        </Routes>
       </div>
      

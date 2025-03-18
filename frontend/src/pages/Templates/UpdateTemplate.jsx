@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import axios from "axios"; // Import Axios
-import { useNavigate } from "react-router-dom";
-function CreateTemplate() {
-  const navigate = useNavigate(); // Initialize useNavigate
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom"; // Import useParams for route parameters
 
+function UpdateTemplate() {
+  const { id } = useParams(); // Get the template ID from the URL
+  const navigate = useNavigate(); // Initialize useNavigate
   const [template, setTemplate] = useState({
     templateName: "",
     shortName: "",
@@ -12,6 +13,21 @@ function CreateTemplate() {
     specimenType: "",
     tests: [],
   });
+
+  // Fetch the template data for editing
+  useEffect(() => {
+    const fetchTemplate = async () => {
+      try {
+        const response = await axios.get(`http://localhost:5002/api/testTemplates/${id}`);
+        setTemplate(response.data);
+      } catch (error) {
+        console.error("Error fetching template:", error.response?.data || error.message);
+        alert("Failed to fetch template. Please try again.");
+      }
+    };
+
+    fetchTemplate();
+  }, [id]);
 
   // Handler for template input changes
   const handleTemplateChange = (e) => {
@@ -99,30 +115,27 @@ function CreateTemplate() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      console.log("Sending template data:", template); // Log the data being sent
-      const response = await axios.post(
-        "http://localhost:5002/api/testTemplates", // Your backend endpoint
-        template // Form data
+      const response = await axios.put(
+        `http://localhost:5002/api/testTemplates/${id}`, // Correct URL
+        template // Updated form data
       );
-  
-      console.log("Backend response:", response); // Log the backend response
-  
-      // Check if the response status is 201 (Created)
-      if (response.status === 201) {
-        console.log("Template saved successfully:", response.data);
-        alert("Template saved successfully!");
-        navigate("/alltemplates"); // Navigate to TestTemplates page
+
+      // Check if the response status is 200 (OK)
+      if (response.status === 200) {
+        console.log("Template updated successfully:", response.data);
+        alert("Template updated successfully!");
+        navigate("/testTemplates"); // Navigate to TestTemplates page
       } else {
         // Handle unexpected status codes
         console.error("Unexpected response status:", response.status);
-        alert("Failed to save template. Please try again.");
+        alert("Failed to update template. Please try again.");
       }
     } catch (error) {
       if (error.response) {
         // The request was made and the server responded with a status code
         console.error("Error response data:", error.response.data);
         console.error("Error status code:", error.response.status);
-        alert("Failed to save template. Please check your input and try again.");
+        alert("Failed to update template. Please check your input and try again.");
       } else if (error.request) {
         // The request was made but no response was received
         console.error("No response received:", error.request);
@@ -134,9 +147,10 @@ function CreateTemplate() {
       }
     }
   };
+
   return (
     <div className="p-6 bg-gray-100">
-      <h1 className="text-2xl font-bold mb-4">Create Template</h1>
+      <h1 className="text-2xl font-bold mb-4">Update Template</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         {/* Template Fields */}
         <div className="space-y-2">
@@ -326,11 +340,11 @@ function CreateTemplate() {
           type="submit"
           className="mt-6 px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600"
         >
-          Create Template
+          Update Template
         </button>
       </form>
     </div>
   );
 }
 
-export default CreateTemplate;
+export default UpdateTemplate;
