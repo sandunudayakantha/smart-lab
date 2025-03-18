@@ -6,6 +6,8 @@ import Home from "./pages/Home"
 import CreateTemplate from "./pages/Templates/CreateTemplate"
 import TestTemplates from "./pages/Templates/TestTemplates"
 import UpdateTemplate from "./pages/Templates/UpdateTemplate"
+import Reports from "./pages/Reports/Reports"
+import CreateReport from "./pages/Reports/CreateReport"
 
 function App() {
 
@@ -20,6 +22,13 @@ function App() {
 
         <Route path="/alltemplates" element={<TestTemplates/>} />
         <Route path="/update-template/:id" element={<UpdateTemplate />} />
+
+        <Route path="/reports" element={<Reports/>} />
+
+        <Route path="/create-report/:id" element={<CreateReport/>} />
+
+
+
        </Routes>
       </div>
      
