@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom"; // Import useParams for route parameters
+import { useNavigate, useParams } from "react-router-dom";
 
 function UpdateTemplate() {
   const { id } = useParams(); // Get the template ID from the URL
@@ -104,6 +104,18 @@ function UpdateTemplate() {
     setTemplate((prev) => {
       const updatedTests = [...prev.tests];
       updatedTests[testIndex].options[optionIndex] = value;
+      return {
+        ...prev,
+        tests: updatedTests,
+      };
+    });
+  };
+
+  // Handler for removing an option from a select input type
+  const handleRemoveOption = (testIndex, optionIndex) => {
+    setTemplate((prev) => {
+      const updatedTests = [...prev.tests];
+      updatedTests[testIndex].options.splice(optionIndex, 1);
       return {
         ...prev,
         tests: updatedTests,
@@ -270,6 +282,13 @@ function UpdateTemplate() {
                         className="w-full p-2 border rounded"
                         placeholder="Enter option"
                       />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveOption(index, optionIndex)}
+                        className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                      >
+                        Remove
+                      </button>
                     </div>
                   ))}
                   <button
