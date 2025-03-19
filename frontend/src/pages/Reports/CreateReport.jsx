@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { useParams, useNavigate } from "react-router-dom";
-import { evaluate } from "mathjs"; // Import math.js
+import { evaluate } from "mathjs";
 
 const CreateReport = () => {
-  const { id } = useParams(); // Get the template ID from the URL
+  const { id } = useParams();
   const navigate = useNavigate();
   const [template, setTemplate] = useState(null);
   const [testResults, setTestResults] = useState([]);
-  const [comment, setComment] = useState(""); // State for comment
-  const [completeStatus, setCompleteStatus] = useState(false); // State for completeStatus
-  const [repeatStatus, setRepeatStatus] = useState(false); // State for repeatStatus
-  const [outSideStatus, setOutSideStatus] = useState(false); // State for outSideStatus
+  const [comment, setComment] = useState("");
+  const [completeStatus, setCompleteStatus] = useState(false);
+  const [repeatStatus, setRepeatStatus] = useState(false);
+  const [outSideStatus, setOutSideStatus] = useState(false);
   const [error, setError] = useState("");
-  const [variables, setVariables] = useState({}); // Store variables for formulas
+  const variablesRef = useRef({});
 
-  // Fetch the Test Template by ID
   useEffect(() => {
     const fetchTemplate = async () => {
       try {
@@ -31,7 +30,6 @@ const CreateReport = () => {
     fetchTemplate();
   }, [id]);
 
-  // Initialize test results state based on the template
   const initializeTestResults = (tests) => {
     const initialResults = tests.map((test) => ({
       testName: test.testName,
@@ -46,67 +44,97 @@ const CreateReport = () => {
     setTestResults(initialResults);
   };
 
-  // Handle input change for test results
   const handleInputChange = (index, value) => {
     const updatedResults = [...testResults];
-    updatedResults[index].result = value;
+    let parsedValue = parseFloat(value) || 0;
 
-    // Parse the input value as a number
-    const parsedValue = parseFloat(value) || 0;
+    if (!isNaN(parsedValue)) {
+      parsedValue = parseFloat(parsedValue.toFixed(1)); // Round to two decimal places
+    }
 
-    // Update variables if the test has a variable
+    updatedResults[index].result = parsedValue;
+
     if (updatedResults[index].variable) {
-      setVariables((prev) => ({
-        ...prev,
-        [updatedResults[index].variable]: parsedValue,
-      }));
+      variablesRef.current[updatedResults[index].variable] = parsedValue;
     }
 
     setTestResults(updatedResults);
+    evaluateFormulas(updatedResults);
   };
 
-  // Evaluate formulas whenever variables change
-  useEffect(() => {
-    evaluateFormulas();
-  }, [variables]);
+  const handleWheel = (e) => {
+    e.target.blur();
+  };
 
-  // Evaluate formulas and update results
-  const evaluateFormulas = () => {
-    const updatedResults = testResults.map((test) => {
+  const evaluateFormulas = (results) => {
+    const updatedResults = [...results];
+    const updatedVariables = { ...variablesRef.current };
+
+    const dependencyGraph = buildDependencyGraph(updatedResults);
+
+    dependencyGraph.forEach((testIndex) => {
+      const test = updatedResults[testIndex];
       if (test.formula) {
         try {
-          // Use math.js to evaluate the formula
-          const result = evaluate(test.formula, variables);
-          return { ...test, result: result.toString() };
+          let result = evaluate(test.formula, updatedVariables);
+          result = parseFloat(result.toFixed(1)); // Round to two decimal places
+          updatedResults[testIndex].result = result.toString();
+
+          if (test.variable) {
+            updatedVariables[test.variable] = result;
+          }
         } catch (err) {
           console.error("Error evaluating formula:", err);
-          return test; // Return the test without updating the result
         }
       }
-      return test;
     });
 
     setTestResults(updatedResults);
+    variablesRef.current = updatedVariables;
   };
 
-  // Handle form submission
+  const buildDependencyGraph = (results) => {
+    const graph = [];
+    const visited = new Set();
+
+    const visit = (index) => {
+      if (visited.has(index)) return;
+      visited.add(index);
+
+      const test = results[index];
+      if (test.formula) {
+        const dependencies = results
+          .map((t, i) => (t.variable && test.formula.includes(t.variable) ? i : -1))
+          .filter((i) => i !== -1);
+
+        dependencies.forEach((depIndex) => visit(depIndex));
+      }
+
+      graph.push(index);
+    };
+
+    results.forEach((_, index) => visit(index));
+
+    return graph;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const testReportData = {
-        patientId: "64f8e8f1e4b0d1a2b3c4d5e6", // Replace with actual patient ID
-        invoiceId: "64f8e8f1e4b0d1a2b3c4d5e7", // Replace with actual invoice ID
+        patientId: "64f8e8f1e4b0d1a2b3c4d5e6",
+        invoiceId: "64f8e8f1e4b0d1a2b3c4d5e7",
         templateId: id,
-        comment, // Include comment
-        completeStatus: true, // Automatically set to true
-        repeatStatus, // Include repeatStatus
-        outSideStatus, // Include outSideStatus
-        testResults, // Include test results
+        comment,
+        completeStatus: true,
+        repeatStatus,
+        outSideStatus,
+        testResults,
       };
 
       const response = await axios.post("http://localhost:5002/api/testReports", testReportData);
       alert("Test report saved successfully!");
-      navigate(`/testReports/${response.data._id}`); // Navigate to the preview page
+      navigate(`/testReports/${response.data._id}`);
     } catch (err) {
       setError("Failed to save test report");
       console.error(err);
@@ -123,7 +151,6 @@ const CreateReport = () => {
       <form onSubmit={handleSubmit} className="space-y-4">
         <h2 className="text-xl font-bold">Template: {template.templateName}</h2>
 
-        {/* Comment Field */}
         <div className="space-y-2">
           <label className="block font-semibold">Comment</label>
           <textarea
@@ -134,53 +161,33 @@ const CreateReport = () => {
           />
         </div>
 
-        {/* Checkboxes for Boolean Fields */}
         <div className="space-y-2">
           <label className="block font-semibold">Status</label>
           <div className="flex items-center space-x-4">
             <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={completeStatus}
-                onChange={(e) => setCompleteStatus(e.target.checked)}
-                className="mr-2"
-                disabled // Disable the checkbox since it's automatically set to true
-              />
+              <input type="checkbox" checked={completeStatus} onChange={(e) => setCompleteStatus(e.target.checked)} className="mr-2" disabled />
               Complete Status
             </label>
             <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={repeatStatus}
-                onChange={(e) => setRepeatStatus(e.target.checked)}
-                className="mr-2"
-              />
+              <input type="checkbox" checked={repeatStatus} onChange={(e) => setRepeatStatus(e.target.checked)} className="mr-2" />
               Repeat Status
             </label>
             <label className="flex items-center">
-              <input
-                type="checkbox"
-                checked={outSideStatus}
-                onChange={(e) => setOutSideStatus(e.target.checked)}
-                className="mr-2"
-              />
+              <input type="checkbox" checked={outSideStatus} onChange={(e) => setOutSideStatus(e.target.checked)} className="mr-2" />
               Outside Status
             </label>
           </div>
         </div>
 
-        {/* Test Results Section */}
         <div className="space-y-4">
           <h2 className="text-xl font-bold">Test Results</h2>
           {testResults.map((test, index) => (
             <div key={index} className="p-4 border rounded bg-white">
-              <label className="block font-semibold">{test.testName} ({test.unit}): </label>
+              <label className="block font-semibold">
+                {test.testName} ({test.unit}):
+              </label>
               {test.inputType === "select" ? (
-                <select
-                  value={test.result}
-                  onChange={(e) => handleInputChange(index, e.target.value)}
-                  className="w-full p-2 border rounded"
-                >
+                <select value={test.result} onChange={(e) => handleInputChange(index, e.target.value)} className="w-full p-2 border rounded">
                   <option value="">Select</option>
                   {test.options.map((option, i) => (
                     <option key={i} value={option}>
@@ -193,22 +200,17 @@ const CreateReport = () => {
                   type={test.inputType}
                   value={test.result}
                   onChange={(e) => handleInputChange(index, e.target.value)}
+                  onWheel={handleWheel}
                   className="w-full p-2 border rounded"
                 />
               )}
               <span className="text-gray-600">Normal Range: {test.normalRange}</span>
-              {test.formula && (
-                <span className="text-sm text-gray-500">Formula: {test.formula}</span>
-              )}
+              {test.formula && <span className="text-sm text-gray-500">Formula: {test.formula}</span>}
             </div>
           ))}
         </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
+        <button type="submit" className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
           Save Test Report
         </button>
       </form>
@@ -218,6 +220,3 @@ const CreateReport = () => {
 };
 
 export default CreateReport;
-
-
-
