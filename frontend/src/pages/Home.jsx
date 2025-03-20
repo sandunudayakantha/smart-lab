@@ -20,31 +20,12 @@ const Home = () => {
 
 
   return (
-    <div className="bg-blue-100 p-6">
+    <div className="bg-blue">
       <h1 className="text-2xl font-bold text-blue-500">Welcome to the Home Page!</h1>
       <p className="mt-4 text-gray-700">This is the Home component.</p>
 
      
-      <button
-        onClick={handleCreateTemplateClick}
-        className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 mx-4"
-      >
-        Create Template
-      </button>
-
-      <button
-        onClick={handleManageTemplateClick}
-        className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-      >
-        Template Management
-      </button>
-
-      <button
-        onClick={handleManageReportClick}
-        className="mt-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-      >
-        Report Management
-      </button>
+      
     </div>
   )
 }

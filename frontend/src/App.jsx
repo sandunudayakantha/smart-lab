@@ -8,28 +8,49 @@ import TestTemplates from "./pages/Templates/TestTemplates"
 import UpdateTemplate from "./pages/Templates/UpdateTemplate"
 import Reports from "./pages/Reports/Reports"
 import CreateReport from "./pages/Reports/CreateReport"
+import Navbar from "./components/Navbar"
+import Sidebar from "./components/Sidebar"
 
 function App() {
 
 
   return (
     
-      <div  >
-       <Routes>
-       <Route path="/" element={<Home/>} />
+      <div>
 
-        <Route path="/templates" element={<CreateTemplate/>} />
+        <Navbar/>
+        <div className="flex" >
 
-        <Route path="/alltemplates" element={<TestTemplates/>} />
-        <Route path="/update-template/:id" element={<UpdateTemplate />} />
+          <div><Sidebar/></div>
+          <div className="w-full h-full">
+          <Routes>
+            <Route path="/" element={<Home/>} />
 
-        <Route path="/reports" element={<Reports/>} />
+            <Route path="/templates" element={<CreateTemplate/>} />
 
-        <Route path="/create-report/:id" element={<CreateReport/>} />
+            <Route path="/alltemplates" element={<TestTemplates/>} />
+            <Route path="/update-template/:id" element={<UpdateTemplate />} />
+
+            <Route path="/reports" element={<Reports/>} />
+
+  <           Route path="/create-report/:id" element={<CreateReport/>} />
 
 
 
-       </Routes>
+          </Routes>
+          </div>
+           
+            
+          
+
+
+        </div>
+         
+
+
+       
+
+       
       </div>
      
    
