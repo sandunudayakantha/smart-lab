@@ -18,7 +18,7 @@ const Sidebar = () => {
                 </NavLink>
 
                 <NavLink className='flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer '
-                to={"/templates"}
+               
                 >
                     
                     <p>Create Invoice</p>
@@ -28,7 +28,8 @@ const Sidebar = () => {
                     <p>Enter Results</p>
                 </NavLink>
 
-                <NavLink className= "flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer border-r-4 border-primary">
+                <NavLink className= "flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer border-r-4 border-primary"
+                to={"allreports"}>
                     
                     <p>Reports</p>
                 </NavLink>
