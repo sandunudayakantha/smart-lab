@@ -13,6 +13,10 @@ import Sidebar from "./components/Sidebar"
 import AllReports from "./pages/Reports/AllReports"
 import ReportView from "./pages/Reports/ReportView"
 
+import Dashboard from "./pages/Inventory/Dashboard";
+import AddItem from "./pages/Inventory/AddItem";
+import EditItem from "./pages/Inventory/EditItem";
+
 function App() {
 
 
@@ -41,6 +45,12 @@ function App() {
 
 
             <Route path="/reports/:id" element={<ReportView />} />
+
+
+            {/* Inventory-related routes */}
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/AddItem" element={<AddItem />} />
+            <Route path="/edit/:itemID" element={<EditItem />} />
 
 
 

@@ -17,13 +17,15 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(
-  cors({
-    origin: "http://localhost:5174", // Replace with your frontend URL
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+/*app.use(
+    cors({
+      origin: "http://localhost:5174/dashboard", // Replace with your frontend URL
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      credentials: true,
+    })
+  );*/
+
+  app.use(cors());
 app.use(express.json()); // Parse JSON request bodies
 
 // Routes

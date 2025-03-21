@@ -1,0 +1,136 @@
+/* General Dashboard Styling */
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: "Arial", sans-serif;
+}
+
+div {
+  padding: 5px;
+}
+
+h1 {
+  text-align: center;
+  color: #333;
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+/* Search and Filter Section */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filters .MuiTextField-root {
+  flex: 1;
+  min-width: 200px;
+}
+
+.add-button {
+  background-color: #1976d2;
+  color: white;
+}
+
+.add-button:hover {
+  background-color: #155a9a;
+}
+
+.report-button {
+  background-color: #d32f2f;
+  color: white;
+}
+
+.report-button:hover {
+  background-color: #a52828;
+}
+
+/* Table Styling */
+.MuiTable-root {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.MuiTableHead-root {
+  background-color: #1976d2;
+}
+
+.MuiTableHead-root .MuiTableCell-root {
+  color: white;
+  font-weight: bold;
+  text-align: left;
+}
+
+.MuiTableBody-root .MuiTableRow-root:hover {
+  background-color: #f5f5f5;
+}
+
+.MuiTableCell-root {
+  padding: 12px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Expiry Status Row Colors */
+.expired-row {
+  background-color: #ffe6e6 !important;
+}
+
+.near-expiry-row {
+  background-color: #fff3e6 !important;
+}
+
+/* Action Buttons */
+.actions {
+  display: flex;
+  gap: 10px;
+}
+
+.actions .MuiButton-root {
+  text-transform: none;
+  font-weight: bold;
+}
+
+/* Notifications */
+.notifications-icon {
+  position: absolute;
+  right: 20px;
+  top: 20px;
+}
+
+.notifications-panel {
+  padding: 15px;
+}
+
+.notifications-list {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+/* Alerts */
+.alert-warning {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.alert-error {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .filters {
+    flex-direction: column;
+  }
+
+  .filters .MuiTextField-root {
+    width: 100%;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+}
