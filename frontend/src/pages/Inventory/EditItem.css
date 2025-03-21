@@ -1,0 +1,35 @@
+.edit-item-container {
+    max-width: 500px;
+    margin: 40px auto;
+    padding: 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .edit-item-container h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    color: #333;
+  }
+  
+  .edit-item-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .edit-item-form .MuiTextField-root {
+    margin-bottom: 16px;
+  }
+  
+  .edit-item-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .edit-item-buttons .MuiButton-root {
+    width: 48%;
+  }
+  

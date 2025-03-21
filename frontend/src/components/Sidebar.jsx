@@ -34,7 +34,8 @@ const Sidebar = () => {
                     <p>Reports</p>
                 </NavLink>
 
-                <NavLink className= "flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer border-r-4 border-primary">
+                <NavLink className= "flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer border-r-4 border-primary"
+                to={"/dashboard"}>
                     
                     <p>Inventory</p>
                 </NavLink>
