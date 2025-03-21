@@ -12,6 +12,7 @@ import Navbar from "./components/Navbar"
 import Sidebar from "./components/Sidebar"
 import AllReports from "./pages/Reports/AllReports"
 import ReportView from "./pages/Reports/ReportView"
+import UpdateReport from "./pages/Reports/UpdateReport"
 
 function App() {
 
@@ -42,6 +43,7 @@ function App() {
 
             <Route path="/reports/:id" element={<ReportView />} />
 
+            <Route path="/update-report/:id" element={<UpdateReport />} />
 
 
 
