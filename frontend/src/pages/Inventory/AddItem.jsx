@@ -15,8 +15,86 @@ const AddItem = () => {
     expirationDate: "",
   });
 
+  const [errors, setErrors] = useState({
+    itemName: "",
+    itemCode: "",
+    category: "",
+    quantity: "",
+    minStockLevel: "",
+    expirationDate: "",
+  });
+
+  // Validation function
+  const validateForm = () => {
+    let isValid = true;
+    const newErrors = { ...errors };
+
+    // Validate Item Name
+    if (!formData.itemName.trim()) {
+      newErrors.itemName = "Item Name is required";
+      isValid = false;
+    } else {
+      newErrors.itemName = "";
+    }
+
+    // Validate Item Code
+    if (!formData.itemCode.trim()) {
+      newErrors.itemCode = "Item Code is required";
+      isValid = false;
+    } else {
+      newErrors.itemCode = "";
+    }
+
+    // Validate Category
+    if (!formData.category.trim()) {
+      newErrors.category = "Category is required";
+      isValid = false;
+    } else {
+      newErrors.category = "";
+    }
+
+    // Validate Quantity
+    if (!formData.quantity) {
+      newErrors.quantity = "Quantity is required";
+      isValid = false;
+    } else if (formData.quantity < 0) {
+      newErrors.quantity = "Quantity cannot be negative";
+      isValid = false;
+    } else {
+      newErrors.quantity = "";
+    }
+
+    // Validate Minimum Stock Level
+    if (!formData.minStockLevel) {
+      newErrors.minStockLevel = "Minimum Stock Level is required";
+      isValid = false;
+    } else if (formData.minStockLevel < 0) {
+      newErrors.minStockLevel = "Minimum Stock Level cannot be negative";
+      isValid = false;
+    } else {
+      newErrors.minStockLevel = "";
+    }
+
+    // Validate Expiration Date
+    if (!formData.expirationDate) {
+      newErrors.expirationDate = "Expiration Date is required";
+      isValid = false;
+    } else {
+      newErrors.expirationDate = "";
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Validate the form before submitting
+    if (!validateForm()) {
+      return;
+    }
+
     try {
       await axios.post("http://localhost:5002/api/inventory", formData);
       alert("Item added successfully!");
@@ -40,6 +118,8 @@ const AddItem = () => {
           required
           fullWidth
           margin="normal"
+          error={!!errors.itemName}
+          helperText={errors.itemName}
         />
 
         {/* Item Code */}
@@ -51,6 +131,8 @@ const AddItem = () => {
           required
           fullWidth
           margin="normal"
+          error={!!errors.itemCode}
+          helperText={errors.itemCode}
         />
 
         {/* Category Dropdown */}
@@ -63,6 +145,8 @@ const AddItem = () => {
           required
           fullWidth
           margin="normal"
+          error={!!errors.category}
+          helperText={errors.category}
         >
           <MenuItem value="reagents">Reagents</MenuItem>
           <MenuItem value="chemicals">Chemicals</MenuItem>
@@ -81,6 +165,8 @@ const AddItem = () => {
           required
           fullWidth
           margin="normal"
+          error={!!errors.quantity}
+          helperText={errors.quantity}
         />
 
         {/* Minimum Stock Level */}
@@ -93,6 +179,8 @@ const AddItem = () => {
           required
           fullWidth
           margin="normal"
+          error={!!errors.minStockLevel}
+          helperText={errors.minStockLevel}
         />
 
         {/* Expiration Date */}
@@ -106,6 +194,8 @@ const AddItem = () => {
           required
           fullWidth
           margin="normal"
+          error={!!errors.expirationDate}
+          helperText={errors.expirationDate}
         />
 
         {/* Buttons */}
@@ -113,7 +203,7 @@ const AddItem = () => {
           <Button type="submit" variant="contained" color="primary">
             Submit
           </Button>
-          <Button component={Link} to="/Dashboard" variant="outlined" color="secondary">
+          <Button component={Link} to="/dashboard" variant="outlined" color="secondary">
             Cancel
           </Button>
         </div>
