@@ -13,7 +13,7 @@ const TestReportSchema = new mongoose.Schema({
   },
   templateId: { 
     type: mongoose.Schema.Types.ObjectId, 
-    ref: "TestTemplate", // Ensure this matches your actual template model name
+    ref: "TestTemplate", 
     required: true
   },
   comment: { type: String, default: "" }, // Additional notes

@@ -33,7 +33,7 @@ export const getAllTestReports = async (req, res) => {
     // Return the test reports
     res.status(200).json(testReports);
   } catch (error) {
-    console.error("Error fetching test reports:", error); // Log the error for debugging
+    console.error("Error fetching test reports:", error); 
     res.status(500).json({ message: "Error fetching test reports", error: error.message });
   }
 };
@@ -97,7 +97,7 @@ export const searchTestReports = async (req, res) => {
   try {
     const { templateName, shortName } = req.query;
 
-    // Step 1: Find matching templates in TestTemplate collection
+    // Find matching templates in TestTemplate collection
     const templateQuery = {};
     if (templateName) {
       templateQuery.templateName = { $regex: templateName, $options: "i" }; // Case-insensitive search
@@ -109,7 +109,7 @@ export const searchTestReports = async (req, res) => {
     const matchingTemplates = await TestTemplate.find(templateQuery);
     const templateIds = matchingTemplates.map((template) => template._id);
 
-    // Step 2: Find test reports that reference the matching templates
+    //Find test reports that reference the matching templates
     const testReports = await TestReport.find({ templateId: { $in: templateIds } });
 
     // If no test reports are found
@@ -124,3 +124,6 @@ export const searchTestReports = async (req, res) => {
     res.status(500).json({ message: "Error searching test reports", error: error.message });
   }
 };
+
+//ieuoirlewlkdkfdllkejlkj
+
