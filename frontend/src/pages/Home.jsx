@@ -21,8 +21,8 @@ const Home = () => {
 
   return (
     <div className="bg-blue">
-      <h1 className="text-2xl font-bold text-blue-500">Welcome to the Home Page!</h1>
-      <p className="mt-4 text-gray-700">This is the Home component.</p>
+      <h1 className="text-2xl font-bold text-blue-500">Welcome to Smart Lab</h1>
+      <p className="mt-4 text-gray-700">Dashboard Overview</p>
 
      
       
