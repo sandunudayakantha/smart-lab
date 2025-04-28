@@ -9,6 +9,8 @@ import testReportRoutes from "./routes/testReport.route.js";
 import ExcelJS from "exceljs";
 import PDFDocument from "pdfkit";
 import reportRoutes from "./routes/reports.js";
+import userRoutes from "./routes/userRoutes.js";
+import invoiceRoutes from "./routes/invoiceRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -33,6 +35,8 @@ app.use("/api/testTemplates", testTemplateRoutes);
 app.use("/api/testReports", testReportRoutes);
 app.use("/api/inventory", inventoryRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/invoices", invoiceRoutes);
 
 // Default route
 app.get("/", (req, res) => {
