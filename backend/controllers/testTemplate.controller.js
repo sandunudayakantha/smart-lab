@@ -56,41 +56,48 @@ export const deleteTestTemplate = async (req, res) => {
     }
 };
 
-//search template
-
+// Search test templates by templateName or shortName
 export const searchTemplates = async (req, res) => {
-    try {
-        const { templateName, shortName } = req.query; // Get query parameters
+  try {
+    const { templateName, shortName } = req.query;
+    console.log('Search request received with query:', req.query);
+    console.log('Parsed parameters:', { templateName, shortName });
 
-        // Build the query object dynamically
-        const query = {};
-        if (templateName) {
-            query.templateName = { $regex: templateName, $options: 'i' }; // Case-insensitive search for templateName
-        }
-        if (shortName) {
-            query.shortName = { $regex: shortName, $options: 'i' }; // Case-insensitive search for shortName
-        }
+    // Build the search query
+    let query = {};
 
-        // If no search parameters are provided, return all templates
-        if (Object.keys(query).length === 0) {
-            const allTemplates = await TestTemplate.find();
-            return res.status(200).json({ templates: allTemplates });
-        }
-
-        // Query the database for matching templates
-        const templates = await TestTemplate.find(query);
-
-        // If no templates are found, return a 404 response
-        if (templates.length === 0) {
-            return res.status(404).json({ message: "No templates found matching the search criteria" });
-        }
-
-        // Return the matching templates
-        res.status(200).json({ templates });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error fetching test templates", error });
+    // If both templateName and shortName are provided, search for either
+    if (templateName && shortName) {
+      query = {
+        $or: [
+          { templateName: { $regex: templateName, $options: "i" } },
+          { shortName: { $regex: shortName, $options: "i" } }
+        ]
+      };
+    } else if (templateName) {
+      // If only templateName is provided
+      query = { templateName: { $regex: templateName, $options: "i" } };
+    } else if (shortName) {
+      // If only shortName is provided
+      query = { shortName: { $regex: shortName, $options: "i" } };
     }
+
+    console.log('Constructed MongoDB query:', JSON.stringify(query));
+
+    // Find matching templates
+    const templates = await TestTemplate.find(query).select('templateName shortName price');
+    console.log('Found templates:', templates);
+
+    // Return the results
+    return res.status(200).json(templates);
+  } catch (error) {
+    console.error("Error in searchTemplates:", error);
+    return res.status(500).json({ 
+      message: "Error searching test templates", 
+      error: error.message,
+      stack: error.stack
+    });
+  }
 };
 
 //ffdfdfdfdfdfdfdfbgjjj
@@ -99,3 +106,33 @@ export const searchTemplates = async (req, res) => {
 //jhhjhjjj
 //yyyy
 //hugjhfsdfghj
+
+// Search test templates by templateName or shortName
+export const searchTestTemplates = async (req, res) => {
+  try {
+    const { templateName, shortName } = req.query;
+
+    // Build the search query
+    const query = {};
+    if (templateName) {
+      query.templateName = { $regex: templateName, $options: "i" }; // Case-insensitive search
+    }
+    if (shortName) {
+      query.shortName = { $regex: shortName, $options: "i" }; // Case-insensitive search
+    }
+
+    // Find matching templates
+    const templates = await TestTemplate.find(query);
+
+    // If no templates are found
+    if (templates.length === 0) {
+      return res.status(404).json({ message: "No matching test templates found" });
+    }
+
+    // Return the results
+    res.status(200).json(templates);
+  } catch (error) {
+    console.error("Error searching test templates:", error);
+    res.status(500).json({ message: "Error searching test templates", error: error.message });
+  }
+};
