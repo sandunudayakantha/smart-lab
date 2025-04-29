@@ -1,4 +1,3 @@
-
 //import { Route } from "lucide-react"
 import React from "react"
 import { Route, Routes } from "react-router-dom"
@@ -13,7 +12,7 @@ import Sidebar from "./components/Sidebar"
 import AllReports from "./pages/Reports/AllReports"
 import ReportView from "./pages/Reports/ReportView"
 import UpdateReport from "./pages/Reports/UpdateReport"
-
+import CreateInvoice from "./pages/CreateInvoice"
 import Dashboard from "./pages/Inventory/Dashboard";
 import AddItem from "./pages/Inventory/AddItem";
 import EditItem from "./pages/Inventory/EditItem";
@@ -32,6 +31,8 @@ function App() {
           <div className="w-full h-full">
           <Routes>
             <Route path="/" element={<Home/>} />
+
+            <Route path="/create-invoice" element={<CreateInvoice/>} />
 
             <Route path="/templates" element={<CreateTemplate/>} />
 
