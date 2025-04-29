@@ -16,6 +16,7 @@ import CreateInvoice from "./pages/CreateInvoice"
 import Dashboard from "./pages/Inventory/Dashboard";
 import AddItem from "./pages/Inventory/AddItem";
 import EditItem from "./pages/Inventory/EditItem";
+import InvoiceManager from './pages/InvoiceManager';
 
 function App() {
 
@@ -55,9 +56,7 @@ function App() {
             <Route path="/AddItem" element={<AddItem />} />
             <Route path="/edit/:itemID" element={<EditItem />} />
 
-
-
-
+            <Route path="/invoices" element={<InvoiceManager />} />
 
           </Routes>
           </div>
