@@ -6,11 +6,11 @@ const invoiceSchema = new mongoose.Schema({
         ref: 'user',
         required: true
     },
-    testTemplateId: {
+    testTemplates: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'testTemplate',
+        ref: 'TestTemplate',
         required: true
-    },
+    }],
     paymentType: {
         type: String,
         enum: ["Cash", "Card", "Bank Transfer", "Online Payment"],
@@ -20,26 +20,28 @@ const invoiceSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    dueAmount: {
+    payingAmount: {
         type: Number,
+        required: true,
         default: 0
     },
-    status: {
-        type: String,
-        enum: ["Pending", "Paid", "Partially Paid", "Overdue"],
-        default: "Pending"
-    },
-    invoiceDate: {
-        type: Date,
-        default: Date.now
-    },
-    dueDate: {
-        type: Date,
-        required: true
+    dueAmount: {
+        type: Number,
+        required: true,
+        default: 0
     },
     notes: {
         type: String,
         default: ""
+    },
+    paymentStatus: {
+        type: String,
+        enum: ["Pending", "Paid", "Partial", "Failed"],
+        default: "Pending"
+    },
+    stripePaymentId: {
+        type: String,
+        default: null
     }
 }, {
     timestamps: true

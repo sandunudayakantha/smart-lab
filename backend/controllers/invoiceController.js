@@ -15,10 +15,11 @@ export const createInvoice = async (req, res) => {
 export const getInvoices = async (req, res) => {
     try {
         const invoices = await invoiceModel.find()
-            .populate('userId', 'name email phone')
-            .populate('testTemplateId', 'testName price');
+            .populate('userId', 'name email phone title gender age')
+            .populate('testTemplates', 'templateName shortName price');
         res.status(200).json(invoices);
     } catch (error) {
+        console.error('Error in getInvoices:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -27,8 +28,8 @@ export const getInvoices = async (req, res) => {
 export const getInvoiceById = async (req, res) => {
     try {
         const invoice = await invoiceModel.findById(req.params.id)
-            .populate('userId', 'name email phone')
-            .populate('testTemplateId', 'testName price');
+            .populate('userId', 'name email phone title gender age')
+            .populate('testTemplates', 'templateName shortName price');
         if (!invoice) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
@@ -45,8 +46,8 @@ export const updateInvoice = async (req, res) => {
             req.params.id,
             req.body,
             { new: true, runValidators: true }
-        ).populate('userId', 'name email phone')
-         .populate('testTemplateId', 'testName price');
+        ).populate('userId', 'name email phone title gender age')
+         .populate('testTemplates', 'templateName shortName price');
         
         if (!updatedInvoice) {
             return res.status(404).json({ message: 'Invoice not found' });
@@ -74,8 +75,8 @@ export const deleteInvoice = async (req, res) => {
 export const getInvoicesByUserId = async (req, res) => {
     try {
         const invoices = await invoiceModel.find({ userId: req.params.userId })
-            .populate('userId', 'name email phone')
-            .populate('testTemplateId', 'testName price');
+            .populate('userId', 'name email phone title gender age')
+            .populate('testTemplates', 'templateName shortName price');
         res.status(200).json(invoices);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -96,18 +97,18 @@ export const updatePaymentStatus = async (req, res) => {
         let status = 'Paid';
         
         if (remainingAmount > 0) {
-            status = 'Partially Paid';
+            status = 'Partial';
         }
 
         const updatedInvoice = await invoiceModel.findByIdAndUpdate(
             req.params.id,
             {
                 dueAmount: remainingAmount,
-                status: status
+                paymentStatus: status
             },
             { new: true }
-        ).populate('userId', 'name email phone')
-         .populate('testTemplateId', 'testName price');
+        ).populate('userId', 'name email phone title gender age')
+         .populate('testTemplates', 'templateName shortName price');
 
         res.status(200).json(updatedInvoice);
     } catch (error) {
