@@ -4,7 +4,7 @@ import cors from "cors";
 import { connectDB } from "./lib/db.js";
 
 import inventoryRoutes from "./routes/inventoryRoutes.js";
-import testTemplateRoutes from "./routes/testTemplate.route.js";
+import testTemplateRoutes from "./routes/testTemplate.routes.js";
 import testReportRoutes from "./routes/testReport.route.js";
 import ExcelJS from "exceljs";
 import PDFDocument from "pdfkit";
@@ -30,6 +30,12 @@ const app = express();
   app.use(cors());
 app.use(express.json()); // Parse JSON request bodies
 
+// Test route
+app.get('/test', (req, res) => {
+    console.log('Test route hit');
+    res.json({ message: 'Test route working' });
+});
+
 // Routes
 app.use("/api/testTemplates", testTemplateRoutes);
 app.use("/api/testReports", testReportRoutes);
@@ -44,7 +50,7 @@ app.get("/", (req, res) => {
 });
 
 // Start the server
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5002;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
   connectDB(); // Connect to the database
