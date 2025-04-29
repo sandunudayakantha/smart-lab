@@ -11,6 +11,7 @@ import PDFDocument from "pdfkit";
 import reportRoutes from "./routes/reports.js";
 import userRoutes from "./routes/userRoutes.js";
 import invoiceRoutes from "./routes/invoiceRoutes.js";
+import paymentRoutes from './routes/payment.routes.js';
 
 // Load environment variables
 dotenv.config();
@@ -43,6 +44,7 @@ app.use("/api/inventory", inventoryRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/invoices", invoiceRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Default route
 app.get("/", (req, res) => {
