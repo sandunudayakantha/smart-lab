@@ -11,6 +11,7 @@ import list_icon from '../assets/list_icon.svg'
 
 import ReceiptIcon from '@mui/icons-material/Receipt';
 
+import ScienceIcon from '@mui/icons-material/Science';
 
 const Sidebar = () => {
     const [isOpen, setIsOpen] = useState(true);

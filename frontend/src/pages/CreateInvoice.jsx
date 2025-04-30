@@ -409,7 +409,7 @@ const CreateInvoice = () => {
 
             const invoiceData = {
                 userId,
-                testTemplateId: selectedTests[0]._id,
+                testTemplates: selectedTests.map(test => test._id), // Store all test template IDs
                 paymentType: formData.paymentType,
                 amount: totalAmount,
                 payingAmount: payingAmount,
@@ -426,33 +426,34 @@ const CreateInvoice = () => {
                 setSuccess('Invoice created successfully! Please complete the payment.');
             } else {
                 setSuccess('Invoice created successfully!');
-                // Reset form for new invoice
-                setFormData({
-                    userId: '',
-                    paymentType: 'Cash',
-                    amount: 0,
-                    payingAmount: 0,
-                    dueAmount: 0,
-                    notes: '',
-                    isFullPayment: false
-                });
-                setSelectedTests([]);
-                setNewUser({
-                    title: 'Mr',
-                    name: '',
-                    gender: 'Male',
-                    email: '',
-                    phone: '',
-                    address: '',
-                    dob: '',
-                    age: {
-                        years: 0,
-                        months: 0
-                    }
-                });
-                setUserSearchTerm('');
-                setSearchTerm('');
             }
+            
+            // Reset form for new invoice
+            setFormData({
+                userId: '',
+                paymentType: 'Cash',
+                amount: 0,
+                payingAmount: 0,
+                dueAmount: 0,
+                notes: '',
+                isFullPayment: false
+            });
+            setSelectedTests([]);
+            setNewUser({
+                title: 'Mr',
+                name: '',
+                gender: 'Male',
+                email: '',
+                phone: '',
+                address: '',
+                dob: '',
+                age: {
+                    years: 0,
+                    months: 0
+                }
+            });
+            setUserSearchTerm('');
+            setSearchTerm('');
         } catch (error) {
             setError(error.response?.data?.message || 'Error creating invoice');
         } finally {
@@ -473,10 +474,45 @@ const CreateInvoice = () => {
 
     const handleDownloadPDF = async () => {
         try {
-            // First create the invoice
+            setLoading(true);
+            setError(null);
+
+            let userId = formData.userId;
+            let userData = null;
+
+            // If creating new user
+            if (!userId && newUser.name) {
+                try {
+                    const userResponse = await axios.post('http://localhost:5002/api/users', newUser);
+                    userId = userResponse.data._id;
+                    userData = userResponse.data; // Store the newly created user data
+                } catch (error) {
+                    setError('Failed to create new user: ' + error.message);
+                    return;
+                }
+            } else if (userId) {
+                // Get existing user data
+                try {
+                    const userResponse = await axios.get(`http://localhost:5002/api/users/${userId}`);
+                    userData = userResponse.data;
+                } catch (error) {
+                    setError('Failed to fetch user data: ' + error.message);
+                    return;
+                }
+            } else {
+                setError('Please select a user or create a new one');
+                return;
+            }
+
+            if (selectedTests.length === 0) {
+                setError('Please select at least one test');
+                return;
+            }
+
+            // Create the invoice
             const invoiceData = {
-                userId: formData.userId,
-                testTemplateId: selectedTests[0]._id,
+                userId,
+                testTemplates: selectedTests.map(test => test._id),
                 paymentType: formData.paymentType,
                 amount: calculateTotal(),
                 payingAmount: formData.payingAmount,
@@ -485,31 +521,68 @@ const CreateInvoice = () => {
                 paymentStatus: formData.paymentType === 'Card' ? 'Pending' : 'Paid'
             };
 
-            const response = await axios.post('http://localhost:5002/api/invoices', invoiceData);
-            const createdInvoice = response.data;
+            try {
+                const response = await axios.post('http://localhost:5002/api/invoices', invoiceData);
+                const createdInvoice = response.data;
 
-            // Get user data
-            const userResponse = await axios.get(`http://localhost:5002/api/users/${formData.userId}`);
-            const user = userResponse.data;
-
-            // Generate PDF
-            const doc = generateInvoicePDF(createdInvoice, user, selectedTests);
-            
-            // Save the PDF
-            doc.save(`invoice_${createdInvoice._id}.pdf`);
-            
-            setSuccess('Invoice created and PDF downloaded successfully!');
+                // Generate PDF using the stored user data
+                const doc = generateInvoicePDF(createdInvoice, userData, selectedTests);
+                
+                // Save the PDF
+                doc.save(`invoice_${createdInvoice._id}.pdf`);
+                
+                setSuccess('Invoice created and PDF downloaded successfully!');
+            } catch (error) {
+                setError('Failed to create invoice: ' + error.message);
+            }
         } catch (error) {
-            setError('Failed to create invoice and generate PDF: ' + error.message);
+            setError('An unexpected error occurred: ' + error.message);
+        } finally {
+            setLoading(false);
         }
     };
 
     const handlePrintInvoice = async () => {
         try {
-            // First create the invoice
+            setLoading(true);
+            setError(null);
+
+            let userId = formData.userId;
+            let userData = null;
+
+            // If creating new user
+            if (!userId && newUser.name) {
+                try {
+                    const userResponse = await axios.post('http://localhost:5002/api/users', newUser);
+                    userId = userResponse.data._id;
+                    userData = userResponse.data; // Store the newly created user data
+                } catch (error) {
+                    setError('Failed to create new user: ' + error.message);
+                    return;
+                }
+            } else if (userId) {
+                // Get existing user data
+                try {
+                    const userResponse = await axios.get(`http://localhost:5002/api/users/${userId}`);
+                    userData = userResponse.data;
+                } catch (error) {
+                    setError('Failed to fetch user data: ' + error.message);
+                    return;
+                }
+            } else {
+                setError('Please select a user or create a new one');
+                return;
+            }
+
+            if (selectedTests.length === 0) {
+                setError('Please select at least one test');
+                return;
+            }
+
+            // Create the invoice
             const invoiceData = {
-                userId: formData.userId,
-                testTemplateId: selectedTests[0]._id,
+                userId,
+                testTemplates: selectedTests.map(test => test._id),
                 paymentType: formData.paymentType,
                 amount: calculateTotal(),
                 payingAmount: formData.payingAmount,
@@ -518,34 +591,36 @@ const CreateInvoice = () => {
                 paymentStatus: formData.paymentType === 'Card' ? 'Pending' : 'Paid'
             };
 
-            const response = await axios.post('http://localhost:5002/api/invoices', invoiceData);
-            const createdInvoice = response.data;
+            try {
+                const response = await axios.post('http://localhost:5002/api/invoices', invoiceData);
+                const createdInvoice = response.data;
 
-            // Get user data
-            const userResponse = await axios.get(`http://localhost:5002/api/users/${formData.userId}`);
-            const user = userResponse.data;
-
-            // Generate PDF
-            const doc = generateInvoicePDF(createdInvoice, user, selectedTests);
-            
-            // Open in new window for printing
-            const pdfWindow = window.open('', '_blank');
-            pdfWindow.document.write(`
-                <html>
-                    <head>
-                        <title>Invoice ${createdInvoice._id}</title>
-                    </head>
-                    <body>
-                        <embed width="100%" height="100%" name="plugin" 
-                            src="data:application/pdf;base64,${doc.output('datauristring').split(',')[1]}" 
-                            type="application/pdf">
-                    </body>
-                </html>
-            `);
-            
-            setSuccess('Invoice created and ready for printing!');
+                // Generate PDF using the stored user data
+                const doc = generateInvoicePDF(createdInvoice, userData, selectedTests);
+                
+                // Open in new window for printing
+                const pdfWindow = window.open('', '_blank');
+                pdfWindow.document.write(`
+                    <html>
+                        <head>
+                            <title>Invoice ${createdInvoice._id}</title>
+                        </head>
+                        <body>
+                            <embed width="100%" height="100%" name="plugin" 
+                                src="data:application/pdf;base64,${doc.output('datauristring').split(',')[1]}" 
+                                type="application/pdf">
+                        </body>
+                    </html>
+                `);
+                
+                setSuccess('Invoice created and ready for printing!');
+            } catch (error) {
+                setError('Failed to create invoice: ' + error.message);
+            }
         } catch (error) {
-            setError('Failed to create invoice and generate PDF: ' + error.message);
+            setError('An unexpected error occurred: ' + error.message);
+        } finally {
+            setLoading(false);
         }
     };
 

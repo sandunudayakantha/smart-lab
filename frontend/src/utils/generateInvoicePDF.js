@@ -23,25 +23,42 @@ export const generateInvoicePDF = (invoice, user, tests) => {
     doc.text(`Address: ${user.address}`, 20, 130);
     
     // Add test details table
-    const tableColumn = ["Test Name", "Short Name", "Price"];
-    const tableRows = tests.map(test => [
-        test.templateName,
-        test.shortName,
-        `Rs. ${test.price}`
-    ]);
+    const tableColumn = ["Test Name", "Price"];
+    let tableRows = [];
+    let startY = 150;
     
-    autoTable(doc, {
-        startY: 150,
-        head: [tableColumn],
-        body: tableRows,
-        theme: 'grid',
-        headStyles: { fillColor: [41, 128, 185] },
-        styles: { fontSize: 10 }
-    });
+    // Handle both single test template and multiple test templates
+    if (tests && tests.length > 0) {
+        // Multiple test templates
+        tableRows = tests.map(test => [
+            test.name || 'Test Name Not Available',
+            `Rs. ${test.price || 0}`
+        ]);
+    } else if (invoice.testTemplateId) {
+        // Single test template
+        tableRows = [[
+            invoice.testTemplateId.name || 'Test Name Not Available',
+            `Rs. ${invoice.testTemplateId.price || 0}`
+        ]];
+    }
+    
+    if (tableRows.length > 0) {
+        autoTable(doc, {
+            startY: startY,
+            head: [tableColumn],
+            body: tableRows,
+            theme: 'grid',
+            headStyles: { fillColor: [41, 128, 185] },
+            styles: { fontSize: 10 }
+        });
+        startY = doc.lastAutoTable.finalY + 20;
+    } else {
+        doc.text('No tests available', 20, startY);
+        startY += 30;
+    }
     
     // Add payment details in a table format
-    const finalY = doc.lastAutoTable.finalY + 20;
-    doc.text('Payment Details:', 20, finalY);
+    doc.text('Payment Details:', 20, startY);
     
     const paymentRows = [
         ['Payment Type:', invoice.paymentType, ''],
@@ -52,7 +69,7 @@ export const generateInvoicePDF = (invoice, user, tests) => {
     ];
     
     autoTable(doc, {
-        startY: finalY + 10,
+        startY: startY + 10,
         body: paymentRows,
         theme: 'plain',
         styles: { fontSize: 11 },
