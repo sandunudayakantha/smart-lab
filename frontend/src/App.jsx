@@ -16,6 +16,7 @@ import CreateInvoice from "./pages/CreateInvoice"
 import Dashboard from "./pages/Inventory/Dashboard";
 import AddItem from "./pages/Inventory/AddItem";
 import EditItem from "./pages/Inventory/EditItem";
+import InvoiceManager from './pages/InvoiceManager';
 
 import ViewItem from "./pages/Inventory/ViewItem";
 
@@ -56,10 +57,11 @@ function App() {
             <Route path="/update-report/:id" element={<UpdateReport />} />
 
             {/* Inventory-related routes */}
-            <Route path="/dashboard" element={<Dashboard />} />
+
             <Route path="/add-item" element={<AddItem />} />
             <Route path="/edit-item/:id" element={<EditItem />} />
             <Route path="/view-item/:id" element={<ViewItem />} />
+
 
             <Route path="/invoices" element={<InvoiceManager />} />
 

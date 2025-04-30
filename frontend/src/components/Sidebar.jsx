@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useContext } from 'react'
 import { NavLink } from 'react-router-dom'
+import ReceiptIcon from '@mui/icons-material/Receipt';
 
 import home_icon from '../assets/home_icon.svg'
 import appointment_icon from '../assets/appointment_icon.svg'
@@ -107,6 +108,12 @@ const Sidebar = () => {
                     <p>Invoice Manager</p>
                 </NavLink>
 
+
+                <NavLink className= "flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer border-r-4 border-primary hover:bg-blue-100 "
+                to={"/invoices"}>
+                    
+                    <p>Invoice Manager</p>
+                </NavLink>
 
             </ul>
         </div>
