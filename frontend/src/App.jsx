@@ -18,6 +18,11 @@ import AddItem from "./pages/Inventory/AddItem";
 import EditItem from "./pages/Inventory/EditItem";
 import InvoiceManager from './pages/InvoiceManager';
 
+import ViewItem from "./pages/Inventory/ViewItem";
+
+import InvoiceManager from './pages/InvoiceManager';
+
+
 function App() {
 
 
@@ -52,9 +57,11 @@ function App() {
             <Route path="/update-report/:id" element={<UpdateReport />} />
 
             {/* Inventory-related routes */}
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/AddItem" element={<AddItem />} />
-            <Route path="/edit/:itemID" element={<EditItem />} />
+
+            <Route path="/add-item" element={<AddItem />} />
+            <Route path="/edit-item/:id" element={<EditItem />} />
+            <Route path="/view-item/:id" element={<ViewItem />} />
+
 
             <Route path="/invoices" element={<InvoiceManager />} />
 
