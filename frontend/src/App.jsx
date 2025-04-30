@@ -20,7 +20,7 @@ import InvoiceManager from './pages/InvoiceManager';
 
 import ViewItem from "./pages/Inventory/ViewItem";
 
-import InvoiceManager from './pages/InvoiceManager';
+//import InvoiceManager from './pages/InvoiceManager';
 
 
 function App() {
