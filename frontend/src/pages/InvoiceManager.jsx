@@ -87,33 +87,27 @@ const InvoiceManager = () => {
 
     const handlePrintInvoice = async (invoice) => {
         try {
-            // Get user data
-            const userResponse = await axios.get(`http://localhost:5002/api/users/${invoice.userId}`);
-            const user = userResponse.data;
-
-            // Get test data
-            const testResponse = await axios.get(`http://localhost:5002/api/testTemplates/${invoice.testTemplateId}`);
-            const test = testResponse.data;
-
-            // Generate PDF
-            const doc = generateInvoicePDF(invoice, user, [test]);
+            setLoading(true);
+            setError(null);
             
-            // Open in new window for printing
-            const pdfWindow = window.open('', '_blank');
-            pdfWindow.document.write(`
-                <html>
-                    <head>
-                        <title>Invoice ${invoice._id}</title>
-                    </head>
-                    <body>
-                        <embed width="100%" height="100%" name="plugin" 
-                            src="data:application/pdf;base64,${doc.output('datauristring').split(',')[1]}" 
-                            type="application/pdf">
-                    </body>
-                </html>
-            `);
+            // Fetch complete invoice data with populated test templates
+            const response = await axios.get(`http://localhost:5002/api/invoices/${invoice._id}`);
+            const completeInvoice = response.data;
+            
+            // Generate PDF using the complete data
+            const pdf = generateInvoicePDF(
+                completeInvoice,
+                completeInvoice.userId,
+                completeInvoice.testTemplates
+            );
+            
+            // Save and download the PDF
+            pdf.save(`invoice_${invoice._id}.pdf`);
         } catch (error) {
-            setError('Failed to generate PDF: ' + error.message);
+            console.error('Error generating PDF:', error);
+            setError(error.message || 'Failed to generate PDF. Please try again later.');
+        } finally {
+            setLoading(false);
         }
     };
 

@@ -1,6 +1,7 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import ReceiptIcon from '@mui/icons-material/Receipt';
+import ScienceIcon from '@mui/icons-material/Science';
 
 const Sidebar = () => {
   return (
@@ -25,8 +26,11 @@ const Sidebar = () => {
                     <p>Create Invoice</p>
                 </NavLink>
 
-                <NavLink className= 'flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer border-r-4 hover:bg-blue-100'>
-                    <p>Enter Results</p>
+                <NavLink className='flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer hover:bg-blue-100'
+                to={"/reports"}
+                >
+                    <ScienceIcon />
+                    <p>Enter Test Results</p>
                 </NavLink>
 
                 <NavLink className= "flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer border-r-4 border-primary hover:bg-blue-100 "
@@ -44,7 +48,7 @@ const Sidebar = () => {
                 <NavLink className= "flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer border-r-4 border-primary hover:bg-blue-100 "
                 to={"/alltemplates"}>
                     
-                    <p>Manage  Test Templates</p>
+                    <p>Manage Test Templates</p>
                 </NavLink>
 
                 <NavLink className= "flex items-center gap-3 py-3.5 px-3 md:px-9 md:min-w-72 cursor-pointer border-r-4 border-primary hover:bg-blue-100 "

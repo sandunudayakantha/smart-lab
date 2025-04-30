@@ -7,7 +7,13 @@ const CreateReport = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
+  // Get data from location state
+  const state = location.state || {};
+  const invoiceId = state.invoiceId;
+  const patientName = state.patientName;
+  const patientId = state.patientId;
+
   const [template, setTemplate] = useState(null);
   const [testResults, setTestResults] = useState([]);
   const [comment, setComment] = useState("");
@@ -16,19 +22,6 @@ const CreateReport = () => {
   const [outSideStatus, setOutSideStatus] = useState(false);
   const [error, setError] = useState("");
   const variablesRef = useRef({});
-  const [patientId, setPatientId] = useState("");
-  const [invoiceId, setInvoiceId] = useState("");
-  const [patientName, setPatientName] = useState("");
-
-  // Set the patientId and invoiceId from location state when component mounts
-  useEffect(() => {
-    if (location.state) {
-      console.log('Setting data from location state:', location.state);
-      setPatientId(location.state.patientId);
-      setInvoiceId(location.state.invoiceId);
-      setPatientName(location.state.patientName);
-    }
-  }, [location.state]);
 
   useEffect(() => {
     const fetchTemplate = async () => {
@@ -64,7 +57,7 @@ const CreateReport = () => {
     let parsedValue = parseFloat(value) || 0;
 
     if (!isNaN(parsedValue)) {
-      parsedValue = parseFloat(parsedValue.toFixed(1)); // Round to two decimal places
+      parsedValue = parseFloat(parsedValue.toFixed(1));
     }
 
     updatedResults[index].result = parsedValue;
@@ -92,7 +85,7 @@ const CreateReport = () => {
       if (test.formula) {
         try {
           let result = evaluate(test.formula, updatedVariables);
-          result = parseFloat(result.toFixed(1)); // Round to two decimal places
+          result = parseFloat(result.toFixed(1));
           updatedResults[testIndex].result = result.toString();
 
           if (test.variable) {
@@ -156,26 +149,7 @@ const CreateReport = () => {
 
       console.log('Submitting test report data:', testReportData);
 
-      // First create the test report
       const response = await axios.post("http://localhost:5002/api/testReports", testReportData);
-      console.log('Test report created:', response.data);
-      
-      // Then update the invoice to mark this template as completed
-      try {
-        console.log('Updating invoice with template completion:', {
-          invoiceId,
-          templateId: id
-        });
-        
-        const invoiceResponse = await axios.put(`http://localhost:5002/api/invoices/${invoiceId}/complete-template`, {
-          templateId: id
-        });
-        console.log('Invoice updated:', invoiceResponse.data);
-      } catch (invoiceErr) {
-        console.error('Error updating invoice:', invoiceErr);
-        // Don't fail the whole operation if invoice update fails
-      }
-
       alert("Test report saved successfully!");
       navigate(`/testReports/${response.data._id}`);
     } catch (err) {
@@ -289,4 +263,4 @@ const CreateReport = () => {
   );
 };
 
-export default CreateReport;
+export default CreateReport; 
