@@ -16,10 +16,23 @@ export const getInvoices = async (req, res) => {
     try {
         const invoices = await invoiceModel.find()
             .populate('userId', 'name email phone title gender age')
-            .populate('testTemplates', 'templateName shortName price');
-        res.status(200).json(invoices);
+            .populate('testTemplates', 'name price')
+            .populate('testTemplateId', 'name price');
+        
+        // Transform the data to ensure test details are available
+        const transformedInvoices = invoices.map(invoice => {
+            if (invoice.testTemplateId && (!invoice.testTemplates || invoice.testTemplates.length === 0)) {
+                return {
+                    ...invoice.toObject(),
+                    testTemplates: [invoice.testTemplateId]
+                };
+            }
+            return invoice;
+        });
+        
+        res.status(200).json(transformedInvoices);
     } catch (error) {
-        console.error('Error in getInvoices:', error);
+        console.error('Error fetching invoices:', error);
         res.status(500).json({ message: error.message });
     }
 };
@@ -29,11 +42,20 @@ export const getInvoiceById = async (req, res) => {
     try {
         const invoice = await invoiceModel.findById(req.params.id)
             .populate('userId', 'name email phone title gender age')
-            .populate('testTemplates', 'templateName shortName price');
+            .populate('testTemplates', 'name price')
+            .populate('testTemplateId', 'name price');
+            
         if (!invoice) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
-        res.status(200).json(invoice);
+        
+        // Transform the data to ensure test details are available
+        let transformedInvoice = invoice.toObject();
+        if (invoice.testTemplateId && (!invoice.testTemplates || invoice.testTemplates.length === 0)) {
+            transformedInvoice.testTemplates = [invoice.testTemplateId];
+        }
+        
+        res.status(200).json(transformedInvoice);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -47,12 +69,20 @@ export const updateInvoice = async (req, res) => {
             req.body,
             { new: true, runValidators: true }
         ).populate('userId', 'name email phone title gender age')
-         .populate('testTemplates', 'templateName shortName price');
+         .populate('testTemplates', 'name price')
+         .populate('testTemplateId', 'name price');
         
         if (!updatedInvoice) {
             return res.status(404).json({ message: 'Invoice not found' });
         }
-        res.status(200).json(updatedInvoice);
+        
+        // Transform the data to ensure test details are available
+        let transformedInvoice = updatedInvoice.toObject();
+        if (updatedInvoice.testTemplateId && (!updatedInvoice.testTemplates || updatedInvoice.testTemplates.length === 0)) {
+            transformedInvoice.testTemplates = [updatedInvoice.testTemplateId];
+        }
+        
+        res.status(200).json(transformedInvoice);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
@@ -76,8 +106,21 @@ export const getInvoicesByUserId = async (req, res) => {
     try {
         const invoices = await invoiceModel.find({ userId: req.params.userId })
             .populate('userId', 'name email phone title gender age')
-            .populate('testTemplates', 'templateName shortName price');
-        res.status(200).json(invoices);
+            .populate('testTemplates', 'name price')
+            .populate('testTemplateId', 'name price');
+            
+        // Transform the data to ensure test details are available
+        const transformedInvoices = invoices.map(invoice => {
+            if (invoice.testTemplateId && (!invoice.testTemplates || invoice.testTemplates.length === 0)) {
+                return {
+                    ...invoice.toObject(),
+                    testTemplates: [invoice.testTemplateId]
+                };
+            }
+            return invoice;
+        });
+        
+        res.status(200).json(transformedInvoices);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -108,9 +151,16 @@ export const updatePaymentStatus = async (req, res) => {
             },
             { new: true }
         ).populate('userId', 'name email phone title gender age')
-         .populate('testTemplates', 'templateName shortName price');
+         .populate('testTemplates', 'name price')
+         .populate('testTemplateId', 'name price');
+         
+        // Transform the data to ensure test details are available
+        let transformedInvoice = updatedInvoice.toObject();
+        if (updatedInvoice.testTemplateId && (!updatedInvoice.testTemplates || updatedInvoice.testTemplates.length === 0)) {
+            transformedInvoice.testTemplates = [updatedInvoice.testTemplateId];
+        }
 
-        res.status(200).json(updatedInvoice);
+        res.status(200).json(transformedInvoice);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }

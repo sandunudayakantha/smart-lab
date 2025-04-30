@@ -58,7 +58,7 @@ export const deleteTestTemplate = async (req, res) => {
 
 // Search test templates by templateName or shortName
 export const searchTemplates = async (req, res) => {
-  try {
+    try {
     const { templateName, shortName } = req.query;
     console.log('Search request received with query:', req.query);
     console.log('Parsed parameters:', { templateName, shortName });
@@ -90,14 +90,14 @@ export const searchTemplates = async (req, res) => {
 
     // Return the results
     return res.status(200).json(templates);
-  } catch (error) {
+    } catch (error) {
     console.error("Error in searchTemplates:", error);
     return res.status(500).json({ 
       message: "Error searching test templates", 
       error: error.message,
       stack: error.stack
     });
-  }
+    }
 };
 
 //ffdfdfdfdfdfdfdfbgjjj
