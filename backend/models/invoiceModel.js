@@ -3,21 +3,24 @@ import mongoose from "mongoose";
 const invoiceSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
+        ref: 'User',
         required: true
     },
     testTemplates: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'TestTemplate'
+        templateId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'TestTemplate',
+            required: true
+        },
+        completed: {
+            type: Boolean,
+            default: false
+        }
     }],
-    testTemplateId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'TestTemplate'
-    },
     paymentType: {
         type: String,
-        enum: ["Cash", "Card", "Bank Transfer", "Online Payment"],
-        required: true
+        enum: ['Cash', 'Card', 'Online'],
+        default: 'Cash'
     },
     amount: {
         type: Number,
@@ -25,22 +28,21 @@ const invoiceSchema = new mongoose.Schema({
     },
     payingAmount: {
         type: Number,
-        required: true,
-        default: 0
+        required: true
     },
     dueAmount: {
         type: Number,
-        required: true,
-        default: 0
+        required: true
     },
-    notes: {
-        type: String,
-        default: ""
+    notes: String,
+    isFullPayment: {
+        type: Boolean,
+        default: false
     },
     paymentStatus: {
         type: String,
-        enum: ["Pending", "Paid", "Partial", "Failed"],
-        default: "Pending"
+        enum: ['Pending', 'Partial', 'Completed'],
+        default: 'Pending'
     },
     stripePaymentId: {
         type: String,

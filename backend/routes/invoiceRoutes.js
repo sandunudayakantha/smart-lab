@@ -2,11 +2,12 @@ import express from 'express';
 import {
     createInvoice,
     getInvoices,
-    getInvoiceById,
+    getInvoice,
     updateInvoice,
     deleteInvoice,
     getInvoicesByUserId,
-    updatePaymentStatus
+    updatePayment,
+    completeTest
 } from '../controllers/invoiceController.js';
 import Invoice from '../models/invoice.js';
 
@@ -15,11 +16,12 @@ const router = express.Router();
 // Invoice routes
 router.post('/', createInvoice);
 router.get('/', getInvoices);
-router.get('/:id', getInvoiceById);
+router.get('/:id', getInvoice);
 router.put('/:id', updateInvoice);
 router.delete('/:id', deleteInvoice);
 router.get('/user/:userId', getInvoicesByUserId);
-router.put('/:id/payment', updatePaymentStatus);
+router.put('/:id/payment', updatePayment);
+router.put('/:invoiceId/complete-test/:templateId', completeTest);
 
 // Route to mark a template as completed in an invoice
 router.put('/:invoiceId/complete-template', async (req, res) => {

@@ -25,8 +25,8 @@ import axios from 'axios';
 
 const Reports = () => {
     const [tabValue, setTabValue] = useState(0);
-    const [pendingReports, setPendingReports] = useState([]);
-    const [completedReports, setCompletedReports] = useState([]);
+    const [pendingTests, setPendingTests] = useState([]);
+    const [completedTests, setCompletedTests] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedReport, setSelectedReport] = useState(null);
@@ -35,72 +35,49 @@ const Reports = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        fetchReports();
+        fetchTests();
     }, []);
 
-    const fetchReports = async () => {
+    const fetchTests = async () => {
         try {
             setLoading(true);
             setError(null);
             
-            // Fetch all invoices with populated user and test template data
+            // Fetch all invoices with populated test templates
             const invoicesResponse = await axios.get('http://localhost:5002/api/invoices');
             const invoices = invoicesResponse.data;
-            console.log('Raw invoice data:', JSON.stringify(invoices[0], null, 2)); // Log first invoice
             
-            // Separate pending and completed reports
-            const pending = [];
-            const completed = [];
-            
-            // Process all invoices for pending tab
-            for (const invoice of invoices) {
-                console.log('Processing invoice userId:', invoice.userId);
-                console.log('Processing invoice userId._id:', invoice.userId?._id);
-                
-                // Get test templates from the invoice
-                const testTemplates = invoice.testTemplates || [];
-                console.log('Invoice test templates:', testTemplates);
-
-                const report = {
-                    invoiceId: invoice._id,
-                    patientName: `${invoice.userId?.title || ''} ${invoice.userId?.name || 'Unknown'}`,
-                    userId: invoice.userId?._id,
-                    testTemplates: testTemplates.map(template => ({
-                        _id: template._id,
-                        name: template.name || template.templateName || 'Test Name Not Available',
-                        category: template.category || 'Uncategorized'
-                    })),
-                    date: new Date(invoice.createdAt).toLocaleDateString(),
-                    status: 'Pending',
-                    amount: invoice.amount,
-                    paymentType: invoice.paymentType,
-                    paymentStatus: invoice.paymentStatus
-                };
-                console.log('Created report:', report);
-                pending.push(report);
-            }
-            
-            // Fetch completed reports
-            const reportsResponse = await axios.get('http://localhost:5002/api/testReports');
-            const reports = reportsResponse.data;
-            
-            reports.forEach(report => {
-                const invoice = invoices.find(inv => inv._id === report.invoiceId);
-                if (invoice) {
-                    completed.push({
-                        ...report,
-                        patientName: `${invoice.userId?.title || ''} ${invoice.userId?.name || 'Unknown'}`,
-                        date: new Date(report.createdAt).toLocaleDateString()
+            // Process all tests from invoices
+            const allTests = [];
+            invoices.forEach(invoice => {
+                if (invoice.testTemplates && invoice.testTemplates.length > 0) {
+                    invoice.testTemplates.forEach(test => {
+                        allTests.push({
+                            _id: test._id,
+                            invoiceId: invoice._id,
+                            patientName: `${invoice.userId?.title || ''} ${invoice.userId?.name || 'Unknown'}`,
+                            userId: invoice.userId?._id,
+                            testName: test.templateName || test.name || 'Test Name Not Available',
+                            category: test.category || 'Uncategorized',
+                            date: new Date(invoice.createdAt).toLocaleDateString(),
+                            amount: test.price || 0,
+                            paymentType: invoice.paymentType,
+                            paymentStatus: invoice.paymentStatus,
+                            completed: test.completed || false
+                        });
                     });
                 }
             });
             
-            console.log('Final pending reports:', pending);
-            setPendingReports(pending);
-            setCompletedReports(completed);
+            // Separate pending and completed tests
+            const pending = allTests.filter(test => !test.completed);
+            const completed = allTests.filter(test => test.completed);
+            
+            setPendingTests(pending);
+            setCompletedTests(completed);
         } catch (error) {
-            console.error('Error fetching reports:', error);
-            setError('Failed to fetch reports. Please try again later.');
+            console.error('Error fetching tests:', error);
+            setError('Failed to fetch tests. Please try again later.');
         } finally {
             setLoading(false);
         }
@@ -110,16 +87,16 @@ const Reports = () => {
         setTabValue(newValue);
     };
 
-    const handleCreateReport = (template) => {
-        if (template.completed) {
+    const handleCreateReport = (test) => {
+        if (test.completed) {
             alert('This test has already been completed');
             return;
         }
-        navigate(`/create-report/${template._id}`, {
+        navigate(`/create-report/${test._id}`, {
             state: {
-                invoiceId: selectedReport.invoiceId,
-                patientId: selectedReport.userId,
-                patientName: selectedReport.patientName
+                invoiceId: test.invoiceId,
+                patientId: test.userId,
+                patientName: test.patientName
             }
         });
     };
@@ -160,8 +137,8 @@ const Reports = () => {
         setSelectedReport(null);
     };
 
-    const handleViewReport = (reportId) => {
-        navigate(`/testReports/${reportId}`);
+    const handleViewReport = (testId) => {
+        navigate(`/testReports/${testId}`);
     };
 
     const renderTestTemplates = () => {
@@ -201,11 +178,11 @@ const Reports = () => {
         <Box sx={{ p: 3 }}>
             <Paper sx={{ p: 2, mb: 2 }}>
                 <Typography variant="h5" gutterBottom>
-                    Reports
+                    Test Reports
                 </Typography>
                 <Tabs value={tabValue} onChange={handleTabChange}>
-                    <Tab label="Pending" />
-                    <Tab label="Completed" />
+                    <Tab label="Pending Tests" />
+                    <Tab label="Completed Tests" />
                 </Tabs>
             </Paper>
 
@@ -225,50 +202,31 @@ const Reports = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell>Patient Name</TableCell>
+                                <TableCell>Test Name</TableCell>
+                                <TableCell>Category</TableCell>
                                 <TableCell>Date</TableCell>
                                 <TableCell>Amount</TableCell>
                                 <TableCell>Payment Type</TableCell>
                                 <TableCell>Payment Status</TableCell>
-                                <TableCell>Tests</TableCell>
                                 <TableCell>Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
-                            {(tabValue === 0 ? pendingReports : completedReports).map((report) => (
-                                <TableRow key={report.invoiceId || report._id}>
-                                    <TableCell>{report.patientName}</TableCell>
-                                    <TableCell>{report.date}</TableCell>
-                                    <TableCell>Rs. {report.amount}</TableCell>
-                                    <TableCell>{report.paymentType}</TableCell>
-                                    <TableCell>{report.paymentStatus}</TableCell>
-                                    <TableCell>
-                                        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                            {report.testTemplates?.map((test, index) => (
-                                                <Box key={index} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                    <Chip
-                                                        label={test.name}
-                                                        color="primary"
-                                                        variant="outlined"
-                                                        size="small"
-                                                    />
-                                                    {test.category && test.category !== 'Uncategorized' && (
-                                                        <Typography variant="caption" color="text.secondary">
-                                                            {test.category}
-                                                        </Typography>
-                                                    )}
-                                                </Box>
-                                            ))}
-                                        </Box>
-                                    </TableCell>
+                            {(tabValue === 0 ? pendingTests : completedTests).map((test) => (
+                                <TableRow key={test._id}>
+                                    <TableCell>{test.patientName}</TableCell>
+                                    <TableCell>{test.testName}</TableCell>
+                                    <TableCell>{test.category}</TableCell>
+                                    <TableCell>{test.date}</TableCell>
+                                    <TableCell>Rs. {test.amount}</TableCell>
+                                    <TableCell>{test.paymentType}</TableCell>
+                                    <TableCell>{test.paymentStatus}</TableCell>
                                     <TableCell>
                                         {tabValue === 0 ? (
                                             <Button
                                                 variant="contained"
                                                 color="primary"
-                                                onClick={() => {
-                                                    setSelectedReport(report);
-                                                    setCreateDialogOpen(true);
-                                                }}
+                                                onClick={() => handleCreateReport(test)}
                                             >
                                                 Create Report
                                             </Button>
@@ -276,7 +234,7 @@ const Reports = () => {
                                             <Button
                                                 variant="contained"
                                                 color="primary"
-                                                onClick={() => handleViewReport(report._id)}
+                                                onClick={() => handleViewReport(test._id)}
                                             >
                                                 View Report
                                             </Button>

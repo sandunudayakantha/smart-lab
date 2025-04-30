@@ -14,7 +14,9 @@ const CreateReport = () => {
   const [completeStatus, setCompleteStatus] = useState(false);
   const [repeatStatus, setRepeatStatus] = useState(false);
   const [outSideStatus, setOutSideStatus] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const variablesRef = useRef({});
   const [patientId, setPatientId] = useState("");
   const [invoiceId, setInvoiceId] = useState("");
@@ -36,9 +38,10 @@ const CreateReport = () => {
         const response = await axios.get(`http://localhost:5002/api/testTemplates/${id}`);
         setTemplate(response.data);
         initializeTestResults(response.data.tests);
-      } catch (err) {
-        setError("Failed to fetch test template");
-        console.error(err);
+        setLoading(false);
+      } catch (error) {
+        setError("Failed to fetch template");
+        setLoading(false);
       }
     };
 
@@ -46,7 +49,7 @@ const CreateReport = () => {
   }, [id]);
 
   const initializeTestResults = (tests) => {
-    const initialResults = tests.map((test) => ({
+    const initialResults = tests.map(test => ({
       testName: test.testName,
       result: "",
       unit: test.unit,
@@ -54,7 +57,7 @@ const CreateReport = () => {
       inputType: test.inputType,
       options: test.options,
       formula: test.formula,
-      variable: test.variable,
+      variable: test.variable
     }));
     setTestResults(initialResults);
   };
@@ -62,17 +65,17 @@ const CreateReport = () => {
   const handleInputChange = (index, value) => {
     const updatedResults = [...testResults];
     let parsedValue = parseFloat(value) || 0;
-
+    
     if (!isNaN(parsedValue)) {
-      parsedValue = parseFloat(parsedValue.toFixed(1)); // Round to two decimal places
+      parsedValue = parseFloat(parsedValue.toFixed(1)); // Round to one decimal place
     }
-
+    
     updatedResults[index].result = parsedValue;
-
+    
     if (updatedResults[index].variable) {
       variablesRef.current[updatedResults[index].variable] = parsedValue;
     }
-
+    
     setTestResults(updatedResults);
     evaluateFormulas(updatedResults);
   };
@@ -87,14 +90,14 @@ const CreateReport = () => {
 
     const dependencyGraph = buildDependencyGraph(updatedResults);
 
-    dependencyGraph.forEach((testIndex) => {
+    dependencyGraph.forEach(testIndex => {
       const test = updatedResults[testIndex];
       if (test.formula) {
         try {
           let result = evaluate(test.formula, updatedVariables);
-          result = parseFloat(result.toFixed(1)); // Round to two decimal places
+          result = parseFloat(result.toFixed(1)); // Round to one decimal place
           updatedResults[testIndex].result = result.toString();
-
+          
           if (test.variable) {
             updatedVariables[test.variable] = result;
           }
@@ -120,9 +123,9 @@ const CreateReport = () => {
       if (test.formula) {
         const dependencies = results
           .map((t, i) => (t.variable && test.formula.includes(t.variable) ? i : -1))
-          .filter((i) => i !== -1);
+          .filter(i => i !== -1);
 
-        dependencies.forEach((depIndex) => visit(depIndex));
+        dependencies.forEach(depIndex => visit(depIndex));
       }
 
       graph.push(index);
@@ -135,6 +138,9 @@ const CreateReport = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
+
     try {
       // Validate data before submission
       if (!patientId || !invoiceId) {
@@ -143,49 +149,62 @@ const CreateReport = () => {
         return;
       }
 
+      // Validate test results
+      const hasEmptyResults = testResults.some(test => test.result === "");
+      if (hasEmptyResults) {
+        setError("Please fill in all test results");
+        return;
+      }
+
       const testReportData = {
+        templateId: id,
         patientId: patientId,
         invoiceId: invoiceId,
-        templateId: id,
-        comment,
-        completeStatus: true,
-        repeatStatus,
-        outSideStatus,
         testResults,
+        comment,
+        completeStatus: true, // Always set to true when submitting
+        repeatStatus,
+        outSideStatus
       };
 
       console.log('Submitting test report data:', testReportData);
 
       // First create the test report
-      const response = await axios.post("http://localhost:5002/api/testReports", testReportData);
+      await axios.post('http://localhost:5002/api/testReports', testReportData);
       
-      // Then update the invoice to mark this template as completed
+      // Then mark the test as completed in the invoice
       try {
-        const invoiceResponse = await axios.put(`http://localhost:5002/api/invoices/${invoiceId}/complete-template`, {
-          templateId: id
-        });
-        console.log('Invoice updated:', invoiceResponse.data);
+        await axios.put(`http://localhost:5002/api/invoices/${invoiceId}/complete-test/${id}`);
+        console.log('Test marked as completed in invoice');
       } catch (invoiceErr) {
-        console.error('Error updating invoice:', invoiceErr);
+        console.error('Error marking test as completed:', invoiceErr);
         // Don't fail the whole operation if invoice update fails
       }
 
-      alert("Test report saved successfully!");
-      navigate(`/testReports/${response.data._id}`);
-    } catch (err) {
-      setError("Failed to save test report");
-      console.error(err);
+      setSuccess("Test report created successfully!");
+      setTimeout(() => {
+        navigate("/reports");
+      }, 2000);
+    } catch (error) {
+      setError(error.response?.data?.message || "Failed to create test report");
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!template) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
+  if (!template) {
+    return <div>Template not found</div>;
+  }
+
   return (
-    <div className="p-6 bg-gray-100">
+    <div className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Create Test Report</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
+      
+      <form onSubmit={handleSubmit} className="space-y-6">
         <div className="bg-white p-4 rounded shadow">
           <h2 className="text-xl font-bold mb-2">Patient Information</h2>
           <p className="text-gray-700">Name: {patientName}</p>
@@ -273,12 +292,15 @@ const CreateReport = () => {
           <button 
             type="submit" 
             className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            disabled={loading}
           >
-            Save Test Report
+            {loading ? "Saving..." : "Save Test Report"}
           </button>
         </div>
       </form>
+
       {error && <p className="text-red-500 mt-4">{error}</p>}
+      {success && <p className="text-green-500 mt-4">{success}</p>}
     </div>
   );
 };
